@@ -51,6 +51,7 @@ namespace EFCore.OracleBulkUploader
             if (type == typeof(decimal) || type == typeof(Nullable<decimal>)) return OracleDbType.Decimal;
             if (type == typeof(DateTime) || type == typeof(Nullable<DateTime>)) return OracleDbType.Date;
             if (type == typeof(bool) || type == typeof(Nullable<bool>)) return OracleDbType.Int16;
+            if (type == typeof(TimeSpan) || type == typeof(Nullable<TimeSpan>)) return OracleDbType.IntervalDS;
 
             throw new ArgumentException(type.ToString());
         }

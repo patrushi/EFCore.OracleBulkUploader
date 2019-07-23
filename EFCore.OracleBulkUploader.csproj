@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>EFCore.OracleBulkUploader</RootNamespace>
     <PackageId>EFCore.OracleBulkUploader</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.3</Version>
     <Authors>ptrushin</Authors>
     <Company>patrushi</Company>
     <PackageDescription>https://github.com/patrushi/EFCore.OracleBulkUploader</PackageDescription>
