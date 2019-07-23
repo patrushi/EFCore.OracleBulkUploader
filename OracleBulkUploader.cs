@@ -11,8 +11,11 @@ namespace EFCore.OracleBulkUploader
     /// <summary>OracleBulkUploader</summary>
     public static class OracleBulkUploader
     {
+        /// <summary>Default Package size</summary>
+        public const int PACKAGE_SIZE = 100000;
+
         /// <summary>BulkInsert</summary>
-        public static bool Insert<T>(DbContext dbContext, List<T> list)
+        public static void Insert<T>(DbContext dbContext, List<T> list, int packageSize = PACKAGE_SIZE)
             where T : class
         {
             var model = dbContext.Model.GetEntityTypes().Where(e => e.ClrType == typeof(T)).Single();
@@ -21,24 +24,30 @@ namespace EFCore.OracleBulkUploader
 
             string query = $"iNSERT INTO {tableName} ({string.Join(",", columnNames.Select(e => $"{e}"))}) VALUES ({string.Join(",", columnNames.Select(e => $":{e}"))})";
             
-            using (var command = (OracleCommand)dbContext.Database.GetDbConnection().CreateCommand())
+            var packageCnt = (int)Math.Ceiling((decimal)(list.Count / (decimal)packageSize));
+
+            for (var i = 0; i < packageCnt; i++)
             {
-                command.CommandText = query;
-                command.CommandType = CommandType.Text;
-                command.BindByName = true;
-                command.ArrayBindCount = list.Count;
+                var packageList = list.Skip(i*packageSize).Take(packageSize).ToList();
 
-                foreach (var c in model.GetProperties())
+                using (var command = (OracleCommand)dbContext.Database.GetDbConnection().CreateCommand())
                 {
-                    var item = Expression.Parameter(typeof(T), "item");
-                    var prop = Expression.Convert(Expression.Property(item, c.PropertyInfo.Name), typeof(object));
-                    var f = Expression.Lambda<Func<T, object>>(prop, item).Compile();
+                    command.CommandText = query;
+                    command.CommandType = CommandType.Text;
+                    command.BindByName = true;
+                    command.ArrayBindCount = packageList.Count;
 
-                    command.Parameters.Add($":{c.Relational().ColumnName}", GetDbType(c.ClrType), list.Select(e => f(e)).ToArray(), ParameterDirection.Input);
+                    foreach (var c in model.GetProperties())
+                    {
+                        var item = Expression.Parameter(typeof(T), "item");
+                        var prop = Expression.Convert(Expression.Property(item, c.PropertyInfo.Name), typeof(object));
+                        var f = Expression.Lambda<Func<T, object>>(prop, item).Compile();
+
+                        command.Parameters.Add($":{c.Relational().ColumnName}", GetDbType(c.ClrType), packageList.Select(e => f(e)).ToArray(), ParameterDirection.Input);
+                    }
+
+                    var result = command.ExecuteNonQuery();
                 }
-
-                int result = command.ExecuteNonQuery();
-                return result == list.Count;
             }
         }
 
