@@ -1,6 +1,6 @@
 # EFCore.OracleBulkUploader
 
-BulkInsert in Oracle from list of ercore entities.
+BulkInsert in Oracle from list of efcore entities.
 
 ```
 public class User
