@@ -1,6 +1,6 @@
 # EFCore.OracleBulkUploader
 
-BulkInsert in Oracle from list of efcore entities.
+BulkInsert in Oracle/SQLServer from list of efcore entities.
 
 ```
 public class User
@@ -11,6 +11,13 @@ public class User
 }
 ```
 
+## Oracle
+```
+var list = new List<User>();
+...
+OracleBulkUploader.Insert(DbContext, list);
+```
+## SQLServer
 ```
 var list = new List<User>();
 ...
