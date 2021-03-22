@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using EFCore;
 
-namespace EFCore.SQLServerBulkUploader
+namespace EFCore.SqlServerBulkUploader
 {
     /// <summary>SQLServerBulkUploader</summary>
-    public class SQLServerBulkUploader: BulkUploader
+    public class SqlServerBulkUploader: BulkUploader
     {
         /// <summary>BulkInsert</summary>
         public static void Insert<T>(DbContext dbContext, List<T> list, int packageSize = PACKAGE_SIZE)
