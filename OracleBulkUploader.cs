@@ -17,7 +17,8 @@ namespace EFCore.OracleBulkUploader
         {
             var model = dbContext.Model.GetEntityTypes().Where(e => e.ClrType == typeof(T)).Single();
             var tableName = model.Relational().TableName;
-            var columnNames = model.GetProperties().Select(e => e.Relational().ColumnName).ToList();
+            var modelProperties = BulkUploader.IdentityUse ? model.GetProperties().Where(e => e.Relational().ColumnName != BulkUploader.IdentityColumnName) : model.GetProperties();
+            var columnNames = modelProperties.Select(e => e.Relational().ColumnName).ToList();
 
             string query = $"INSERT INTO {tableName} ({string.Join(",", columnNames.Select(e => $"\"{e}\""))}) VALUES ({string.Join(",", columnNames.Select(e => $":b_{e}"))})";
             
